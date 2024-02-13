@@ -11,15 +11,18 @@ from .models import User, State, City, Place
 from .storage import save_object, load_object
 
 class(user) BaseModel:
-    def _init_(User, Name, Email, Password)
-    super()._init_(Name=Name, Email=Email, Password=Password)
+    def _init_(User, name, email,password)
+    super()._init_(name=name, email=email, password=password)
 
 class(State) BaseModel:
-    def _init_(User, Name)
-    super()._init_(Name=Name)
+    def _init_(user, name)
+    super()._init_(name=name)
 
 class(City) BaseModel:
-    def _init_(User, Name, State)
-    super()._init_(Name=Name, State=State)
+    def _init_(user, name, state)
+    super()._init_(name=name, state=state)
+class(Place) BaseModel:
+    def _init_(user, name, description, price, City)
+    super()._init_(name=name, description=description, price=price, city=city)
 
 
