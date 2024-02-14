@@ -10,8 +10,29 @@ class BaseModel:
 
     """Abstract base class defining core functionality for the object hierarchy."""
 
-    def __init__(self):
-        self.id=(uuid.uuid4())
+    def __init__(self, *args, **kwargs):
+        time_format = "%Y-%m-%dT%H:%M:%S.%f"
+        """
+        Initializes a new BaseModel instance.
+          
+        Args:
+            *args: Not used in this implementation.
+            **kwargs: A dictionary containing attribute names and values.
+        """
+
+        if kwargs:
+            # Exclude the '__class__' key from kwargs
+            for key, value in kwargs.items():
+                if key != '__class__':
+                    if key in ['created_at', 'updated_at']:
+                        # Convert string timestamps to datetime objects
+                        try:
+                            value = datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                        except ValueError:
+                            raise ValueError(f"Invalid datetime format for {key}: {value}")
+                    setattr(self, key, value)
+        else:
+            self.id=str(uuid.uuid4())
 
         selfcreated_at_ = datetime.utcnow()
         selfupdated_at_ = datetime.utcnow()
