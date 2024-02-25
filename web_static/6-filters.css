@@ -1,4 +1,7 @@
-
+/*
+ *  Filter Style 
+ *
+*/
 
 .filters {
     background-color: white;
@@ -23,8 +26,9 @@
     opacity: 1;
   }
   
-  section.filters button:hover {
-    opacity: 0.9;
+    /*change opacity to 90% when the mouse is on the button*/
+.filters button:hover{
+    background-color: rgba(255, 90, 95, .9);
   }
   
   .locations,
