@@ -1,47 +1,97 @@
+#!/usr/bin/python3
+"""Module for FileStorage class."""
+import datetime
 import json
 import os
-from models.base_model import BaseModel
+
 
 class FileStorage:
-    """Handles the serialization and deserialization of BaseModel instances to JSON files."""
 
-    __file_path = "file.json"  # Default file path
-
-    __objects = {}  # Dictionary to store objects by key (<class name>.id)
-
-
-    def new(self, obj):
-        """Adds a new object to the storage dictionary."""
-        if obj:
-            key = f"{obj.__class__.__name__}.{obj.id}"
-            filestorage.__objects[key] = obj
+    """Class for serializtion and deserialization of base classes."""
+    __file_path = "file.json"
+    __objects = {}
 
     def all(self):
-        """Returns a dictionary of all stored objects."""
-        return filestorage.__objects.copy()
+        """Returns __objects dictionary."""
+        # TODO: should this be a copy()?
+        return FileStorage.__objects
+
+    def new(self, obj):
+        """Sets new obj in __objects dictionary."""
+        # TODO: should these be more precise specifiers?
+        key = "{}.{}".format(type(obj).__name__, obj.id)
+        FileStorage.__objects[key] = obj
 
     def save(self):
-        """Serializes all objects in the storage dictionary to a JSON file."""
-        
-                all_objects = filestorage._objects
-                obj_dict = {}
-            
-            for obj in all_objs.keys()
-                obj_dict[obj] = all_objects[obj].to_dict()
+        """Serialzes __objects to JSON file."""
+        with open(FileStorage.__file_path, "w", encoding="utf-8") as f:
+            d = {k: v.to_dict() for k, v in FileStorage.__objects.items()}
+            json.dump(d, f)
 
-            with open(filestorage._file_path. "w", encodings "utf-8") as file: json.dump(obj_dict, file)
-            except IOError as e:
-        print(f"Error occurred while saving JSON file: {e}")
+    def classes(self):
+        """Returns a dictionary of valid classes and their references."""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.place import Place
+        from models.review import Review
+
+        classes = {"BaseModel": BaseModel,
+                   "User": User,
+                   "State": State,
+                   "City": City,
+                   "Amenity": Amenity,
+                   "Place": Place,
+                   "Review": Review}
+        return classes
 
     def reload(self):
-        """Deserializes objects from a JSON file into the storage dictionary."""
-        try:
-            with open(self.__file_path, "r") as f:
-                data = json.load(f)
-                for key, value in data.items():
-                    class_name ,object_id = key.split(".")
-                    self.__objects[key] = globals()[class_name](**value)
-        except FileNotFoundError:
-            pass  # Ignore errors if file doesn't exist
+        """Deserializes JSON file into __objects."""
+        if not os.path.isfile(FileStorage.__file_path):
+            return
+        with open(FileStorage.__file_path, "r", encoding="utf-8") as f:
+            obj_dict = json.load(f)
+            obj_dict = {k: self.classes()[v["__class__"]](**v)
+                        for k, v in obj_dict.items()}
+            # TODO: should this overwrite or insert?
+            FileStorage.__objects = obj_dict
 
-
+    def attributes(self):
+        """Returns the valid attributes and their types for classname."""
+        attributes = {
+            "BaseModel":
+                     {"id": str,
+                      "created_at": datetime.datetime,
+                      "updated_at": datetime.datetime},
+            "User":
+                     {"email": str,
+                      "password": str,
+                      "first_name": str,
+                      "last_name": str},
+            "State":
+                     {"name": str},
+            "City":
+                     {"state_id": str,
+                      "name": str},
+            "Amenity":
+                     {"name": str},
+            "Place":
+                     {"city_id": str,
+                      "user_id": str,
+                      "name": str,
+                      "description": str,
+                      "number_rooms": int,
+                      "number_bathrooms": int,
+                      "max_guest": int,
+                      "price_by_night": int,
+                      "latitude": float,
+                      "longitude": float,
+                      "amenity_ids": list},
+            "Review":
+            {"place_id": str,
+                         "user_id": str,
+                         "text": str}
+        }
+        return attributes
