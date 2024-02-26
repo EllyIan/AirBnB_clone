@@ -4,6 +4,7 @@
 
 import unittest
 from models.base_model import BaseModel
+from models import storage
 
 
 class TestBaseModelSave(unittest.TestCase):
@@ -12,6 +13,7 @@ class TestBaseModelSave(unittest.TestCase):
     def test_save(self):
         """Test that save() method saves the BaseModel instance."""
         model = BaseModel()
+        storage.new(model)
         model.save()
         # Assert that the BaseModel instance is saved
         self.assertIsNotNone(model.updated_at)  # Ensure updated_at attribute is set after save()
