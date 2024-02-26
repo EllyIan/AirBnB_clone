@@ -1,61 +1,64 @@
 #!/usr/bin/python3
-"""
-Module: Base class for AirBnB clone console
-"""
 
-import uuid
-from datetime import datetime
-from models import storage
+import unittest
+from models.base_model import BaseModel
 
+# Test cases for the BaseModel class
+class TestBaseModel(unittest.TestCase):
 
-class BaseModel:
-    """
-    Base model class for object hierarchy.
-    """
+    # Test initialization of BaseModel
+    def test_init(self):
+        # Create a new BaseModel instance
+        my_model = BaseModel()
 
-    def __init__(self, *args, **kwargs):
-        """
-        Initializes a Base instance.
+        # Assert that the expected attributes are not None
+        self.assertIsNotNone(my_model.id)  # Check for a unique ID
+        self.assertIsNotNone(my_model.created_at)  # Check for creation timestamp
+        self.assertIsNotNone(my_model.updated_at)  # Check for update timestamp
 
-        Args:
-            *args: List of arguments.
-            **kwargs: Dictionary of key-value arguments.
-        """
-        if kwargs is not None and kwargs != {}:
-            for key in kwargs:
-                if key == "created_at":
-                    self.__dict__["created_at"] = datetime.strptime(
-                        kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-                elif key == "updated_at":
-                    self.__dict__["updated_at"] = datetime.strptime(
-                        kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
-                else:
-                    self.__dict__[key] = kwargs[key]
-        else:
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-            storage.new(self)
+    # Test saving a BaseModel instance
+    def test_save(self):
+        # Create a new BaseModel instance
+        my_model = BaseModel()
 
-    def __str__(self):
-        """
-        Returns a human-readable string representation of an instance.
-        """
-        return "[{}] ({}) {}".format(type(self).__name__, self.id, self.__dict__)
+        # Store the initial updated_at timestamp
+        initial_updated_at = my_model.updated_at
 
-    def save(self):
-        """
-        Updates the updated_at attribute with the current datetime.
-        """
-        self.updated_at = datetime.now()
-        storage.save()
+        # Call the save method
+        my_model.save()
 
-    def to_dict(self):
-        """
-        Returns a dictionary representation of an instance.
-        """
-        my_dict = self.__dict__.copy()
-        my_dict["__class__"] = type(self).__name__
-        my_dict["created_at"] = my_dict["created_at"].isoformat()
-        my_dict["updated_at"] = my_dict["updated_at"].isoformat()
-        return my_dict
+        # Assert that the updated_at timestamp has changed
+        self.assertNotEqual(initial_updated_at, my_model.updated_at)
+
+    # Test converting a BaseModel instance to a dictionary
+    def test_to_dict(self):
+        # Create a new BaseModel instance
+        my_model = BaseModel()
+
+        # Convert the instance to a dictionary
+        my_model_dict = my_model.to_dict()
+
+        # Assert that the result is a dictionary
+        self.assertIsInstance(my_model_dict, dict)
+
+        # Assert expected keys and values in the dictionary
+        self.assertEqual(my_model_dict["__class__"], "BaseModel")  # Check class name
+        self.assertEqual(my_model_dict["id"], my_model.id)  # Check ID
+        self.assertEqual(my_model_dict["created_at"], my_model.created_at.isoformat())  # Check creation timestamp
+        self.assertEqual(my_model_dict["updated_at"], my_model.updated_at.isoformat())  # Check update timestamp
+
+    # Test the string representation of a BaseModel instance
+    def test_str(self):
+        # Create a new BaseModel instance
+        my_model = BaseModel()
+
+        # Assert that the string representation starts with "[BaseModel]"
+        self.assertTrue(str(my_model).startswith("[BaseModel]"))
+
+        # Assert that the ID and dictionary representation are included in the string
+        self.assertIn(my_model.id, str(my_model))
+        self.assertIn(str(my_model.__dict__), str(my_model))
+
+# Run the tests if this file is executed directly
+if __name__ == "__main__":
+    unittest.main()
